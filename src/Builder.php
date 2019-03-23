@@ -19,6 +19,9 @@ final class Builder
     /** @var string */
     private $locale;
 
+    /** @var int */
+    private $times = 1;
+
     public function __construct(callable $callable_for_make, array $recipes, string $locale)
     {
         $this->callable_for_make = $callable_for_make;
@@ -34,7 +37,31 @@ final class Builder
      */
     public function make(array $attributes = [])
     {
-        return call_user_func($this->callable_for_make, $this->buildAttributes($attributes));
+        if ($this->times === 1) {
+            return call_user_func($this->callable_for_make, $this->buildAttributes($attributes));
+        }
+
+        $entities = [];
+        $times = $this->times;
+        while ($times--) {
+            $entities[] = call_user_func($this->callable_for_make, $this->buildAttributes($attributes));
+        }
+
+        return $entities;
+    }
+
+    /**
+     * @param int $times
+     * @return Builder
+     */
+    public function times(int $times): self
+    {
+        if ($times < 1) {
+            throw new InvalidArgumentException('times must be positive number. but given '.$times);
+        }
+        $this->times = $times;
+
+        return $this;
     }
 
     /**

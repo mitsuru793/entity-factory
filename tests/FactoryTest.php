@@ -51,4 +51,12 @@ final class FactoryTest extends TestCase
         $entity = Factory::of(FakeEntity::class)->recipe('foo')->make();
         $this->assertInstanceOf(FakeEntity::class, $entity);
     }
+
+    public function testCanMultipleBuild()
+    {
+        $entities = Factory::of(FakeEntity::class)->times(2)->recipe('foo')->make();
+
+        $this->assertTrue(is_array($entities));
+        $this->assertSame(2, count($entities));
+    }
 }
