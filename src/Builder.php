@@ -74,7 +74,12 @@ final class Builder
      */
     public function recipe(string $recipe): self
     {
-        return $this->recipes([$recipe]);
+        if ( ! isset($this->recipes[$recipe])) {
+            throw new InvalidArgumentException($recipe.' is not defined.');
+        }
+        $this->using_recipes[] = $recipe;
+
+        return $this;
     }
 
     /**
@@ -84,10 +89,7 @@ final class Builder
     public function recipes(array $recipes): self
     {
         foreach ($recipes as $recipe) {
-            if ( ! isset($this->recipes[$recipe])) {
-                throw new InvalidArgumentException($recipe.' is not defined.');
-            }
-            $this->using_recipes[] = $recipe;
+            $this->recipe($recipe);
         }
 
         return $this;
