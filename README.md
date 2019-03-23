@@ -35,7 +35,7 @@ $user = Factory::of(User::class)->make();
 ```php
 <?php
 
-Factory::addRecipe(Uer::class, 'foo', [
+Factory::addRecipe(User::class, 'foo', [
     'name' => 'foo'
 ]);
 
