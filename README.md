@@ -2,7 +2,7 @@
 ## Installation
 
 ```bash
-composer require yahiru/entity-generator
+composer require yahiru/entity-factory
 ```
 
 ## Basic Usage
