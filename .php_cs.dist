@@ -1,0 +1,14 @@
+<?php
+
+$header = <<<'EOF'
+EOF;
+
+return \PhpCsFixer\Config::create()
+    ->setRiskyAllowed(true)
+    ->setLineEnding("\n")
+    ->setUsingCache(true)
+    ->setFinder(
+        PhpCsFixer\Finder::create()
+            ->exclude('vendor')
+            ->in(__DIR__)
+    );
