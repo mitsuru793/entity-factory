@@ -101,7 +101,7 @@ final class Builder
      */
     public function recipe(string $recipe): self
     {
-        if ( ! isset($this->recipes[$recipe])) {
+        if (! isset($this->recipes[$recipe])) {
             throw new InvalidArgumentException($recipe.' is not defined.');
         }
         $this->using_recipes[] = $recipe;

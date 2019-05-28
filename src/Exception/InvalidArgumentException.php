@@ -5,5 +5,4 @@ namespace Yahiru\EntityFactory\Exception;
 
 final class InvalidArgumentException extends \InvalidArgumentException
 {
-
 }

@@ -45,7 +45,7 @@ final class Factory
      */
     public static function of(string $class)
     {
-        if ( ! isset(self::$builders[$class])) {
+        if (! isset(self::$builders[$class])) {
             throw new InvalidArgumentException($class.' is not defined.');
         }
         return new Builder(self::$builders[$class], self::$recipes[$class], self::getLocale());
