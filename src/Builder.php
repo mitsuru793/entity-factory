@@ -68,7 +68,7 @@ final class Builder
      * @param array $attributes
      * @return array
      */
-    public function buildAttributes(array $attributes): array
+    private function buildAttributes(array $attributes): array
     {
         $built = [];
         foreach ($this->using_recipes as $recipe) {
@@ -76,6 +76,11 @@ final class Builder
         }
 
         return array_merge($built, $attributes);
+    }
+
+    public function attributes(array $attributes = []): array
+    {
+        return $this->buildAttributes($attributes);
     }
 
     /**
