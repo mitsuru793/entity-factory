@@ -2,3 +2,7 @@ parameters:
   level: 7
   paths:
     - ./src
+  ignoreErrors:
+    - '#Call to an undefined method RecursiveIteratorIterator::isDot().#'
+    - '#Call to an undefined method RecursiveIteratorIterator::isFile().#'
+    - '#Call to an undefined method RecursiveIteratorIterator::isReadable().#'

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Yahiru\EntityFactory;
 
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Yahiru\EntityFactory\Exception\InvalidArgumentException;
 
 final class Factory
@@ -17,6 +19,20 @@ final class Factory
     private static $locale = 'en_US';
 
     const DEFAULT = 'default';
+
+    public static function load(string $dir)
+    {
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+
+        /** @var $iterator RecursiveDirectoryIterator */
+        while ($iterator->valid()) {
+            if (! $iterator->isDot() && $iterator->isFile() && $iterator->isReadable() && $iterator->current()->getExtension() === 'php') {
+                require_once $iterator->key();
+            }
+
+            $iterator->next();
+        }
+    }
 
     /**
      * @param string $class

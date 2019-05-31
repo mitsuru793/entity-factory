@@ -59,4 +59,13 @@ final class FactoryTest extends TestCase
         $this->assertTrue(is_array($entities));
         $this->assertSame(2, count($entities));
     }
+
+    public function testRecursiveFileLoad()
+    {
+        Factory::load(__DIR__.'/defines');
+
+        $this->assertSame('define1', Factory::of('define1')->make());
+        $this->assertSame('define2', Factory::of('define2')->make());
+        $this->assertSame('define3', Factory::of('define3')->make());
+    }
 }
