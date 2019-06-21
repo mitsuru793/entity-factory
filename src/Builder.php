@@ -16,17 +16,17 @@ final class Builder
     /** @var array */
     private $using_recipes = [];
 
-    /** @var string */
-    private $locale;
-
     /** @var int */
     private $times = 1;
+
+    /** @var \Faker\Generator */
+    private $faker;
 
     public function __construct(callable $callable_for_make, array $recipes, string $locale)
     {
         $this->callable_for_make = $callable_for_make;
         $this->recipes = $recipes;
-        $this->locale = $locale;
+        $this->faker = \Faker\Factory::create($locale);
 
         $this->recipe(Factory::DEFAULT);
     }
@@ -94,7 +94,7 @@ final class Builder
         }
 
         if (is_callable($recipe)) {
-            return $recipe(\Faker\Factory::create($this->locale));
+            return $recipe($this->faker);
         }
 
         throw new InvalidArgumentException('recipe must be array or callable.');
