@@ -123,7 +123,7 @@ $fooCollection = FooEntityFactory::fakerRecipe()->times(5)->make();
 echo get_class($fooCollection); // FooCollection
 ```
 
-## Store to Database
+## To Store An Entity In Database
 
 ```php
 <?php
@@ -142,4 +142,8 @@ class FooEntityFactory extends AbstractFactory
         $stmt->execute();
     }
 }
+
+// execute store method when you want to store an entity in database
+$fooCollection = FooEntityFactory::fakerRecipe()->store();
+echo get_class($fooCollection); // FooCollection
 ```
