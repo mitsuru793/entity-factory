@@ -63,6 +63,7 @@ class FooEntityFactory extends AbstractFactory
 
     public function fooName(): self
     {
+        // must call addRecipe
         $this->addRecipe([
             'name' => 'foo name'
         ]);
@@ -111,6 +112,7 @@ class FooEntityFactory extends AbstractFactory
 {
     // ...
 
+    // override this method
     protected function newCollection(array $entities)
     {
         return new FooCollection($entities);
@@ -119,4 +121,25 @@ class FooEntityFactory extends AbstractFactory
 
 $fooCollection = FooEntityFactory::fakerRecipe()->times(5)->make();
 echo get_class($fooCollection); // FooCollection
+```
+
+## Store to Database
+
+```php
+<?php
+
+class FooEntityFactory extends AbstractFactory
+{
+    // ...
+
+    // override this method
+    protected function persistEntity($entity): void
+    {
+        /** @var FooEntity $entity */
+        $pdo = new \PDO('mysql:host=localhost;dbname=foo_db', 'user', 'password');
+        $stmt = $pdo->prepare('INSERT INTO foo (name) VALUES (:name)');
+        $stmt->bindValue(':name', $entity->getName());
+        $stmt->execute();
+    }
+}
 ```
