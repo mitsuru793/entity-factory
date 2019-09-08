@@ -12,22 +12,44 @@ composer require yahiru/entity-factory
 
 require '/path/to/autoload.php';
 
-use Yahiru\EntityFactory\Factory;
+use Faker\Generator as Faker;
+use Yahiru\EntityFactory\AbstractFactory;
 
-Factory::define(
-    User::class,
-    // define how to generate
-    function (array $attributes) {
-        return new User(
-            $attributes['name'],
-            $attributes['email']
-        );
-    },
-    // define default values
-    ['name' => 'foo', 'email' => 'bar@domain.com']
-);
+/**
+ * @method FooEntity|FooEntity[] make(array $attributes = [])
+ */
+class FooEntityFactory extends AbstractFactory
+{
+    protected function class(): string
+    {
+        // return class name you want to create
+        return FooEntity::class;
+    }
 
-$user = Factory::of(User::class)->make();
+    public function default(Faker $faker): array
+    {
+        // define default values
+        return [
+            'name' => 'default name'
+        ];
+    }
+}
+
+class FooEntity
+{
+    private $name;
+    
+    public function getName(): string
+    {
+        return $this->name;
+    }
+}
+
+$foo = FooEntityFactory::start()->make(); // FooEntity
+echo $foo->getName(); // "default name"
+
+$foos = FooEntityFactory::start()->times(10)->make();
+echo count($foos); // 10
 ```
 
 ## Using Recipe
@@ -35,12 +57,21 @@ $user = Factory::of(User::class)->make();
 ```php
 <?php
 
-Factory::addRecipe(User::class, 'foo', [
-    'name' => 'foo'
-]);
+class FooEntityFactory extends AbstractFactory
+{
+    // ...
 
-$user = Factory::of(User::class)->recipe('foo')->make();
-echo $user->name; // foo
+    public function fooName(): self
+    {
+        $this->addRecipe([
+            'name' => 'foo name'
+        ]);
+
+        return $this;
+    }
+}
+$foo = FooEntityFactory::start()->fooName()->make();
+echo $foo->getName(); // "foo name"
 ```
 
 ## With Faker
@@ -48,28 +79,44 @@ echo $user->name; // foo
 ```php
 <?php
 
-Factory::setLocale('ja_JP'); // default 'en_US'
+use Faker\Generator as Faker;
 
-Factory::define(
-    User::class,
-    function (array $attributes) {
-        return new User(
-            $attributes['name'],
-            $attributes['email']
-        );
-    },
-    function (\Faker\Generator $faker) {
-        return [
-            'name' => $faker->name,
-            'email' => $faker->safeEmail,
-        ];
+class FooEntityFactory extends AbstractFactory
+{
+    protected $locale = 'ja_JP'; // default 'en_US'
+
+    // ...
+
+    public function fakerRecipe(): self
+    {
+        $this->addRecipe(function (Faker $faker) {
+            return [
+                'name' => $faker->name
+            ];
+        });
+
+        return $this;
     }
-);
+}
+$foo = FooEntityFactory::fakerRecipe()->fooRecipe()->make();
+echo $foo->getName();
+```
 
-Factory::addRecipe(User::class, 'foo', function (\Faker\Generator $faker) {
-    return [
-        'name' => $faker->name,
-        'email' => $faker->safeEmail,
-    ];
-});
+## Return Custom Collection Class
+
+```php
+<?php
+
+class FooEntityFactory extends AbstractFactory
+{
+    // ...
+
+    protected function newCollection(array $entities)
+    {
+        return new FooCollection($entities);
+    }
+}
+
+$fooCollection = FooEntityFactory::fakerRecipe()->times(5)->make();
+echo get_class($fooCollection); // FooCollection
 ```
