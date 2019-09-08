@@ -18,6 +18,7 @@ abstract class AbstractFactory
     protected $ignoredKeys = [];
     private $times = 1;
     private $recipes = [];
+    private $currentAttributes = [];
 
     /**
      * @param mixed ...$args
@@ -110,12 +111,25 @@ abstract class AbstractFactory
 
     private function buildAttributes(Faker $faker, array $attributes): array
     {
-        $built = $this->default($faker);
+        $this->updateCurrentAttributes(
+            $built = $this->default($faker)
+        );
+
         foreach ($this->recipes as $recipe) {
-            $built = array_merge($built, $this->toAttributes($faker, $recipe));
+            $this->updateCurrentAttributes(
+                $built = array_merge($built, $this->toAttributes($faker, $recipe))
+            );
         }
 
-        return array_merge($built, $attributes);
+        $this->updateCurrentAttributes(
+            $built = array_merge($built, $attributes)
+        );
+        return $built;
+    }
+
+    private function updateCurrentAttributes(array $attributes): void
+    {
+        $this->currentAttributes = $attributes;
     }
 
     abstract public function default(Faker $faker): array;
@@ -169,6 +183,11 @@ abstract class AbstractFactory
     final public function attributes(array $attributes = []): array
     {
         return $this->buildAttributes($this->getFaker(), $attributes);
+    }
+
+    final protected function currentAttributes(): array
+    {
+        return $this->currentAttributes;
     }
 
     /**

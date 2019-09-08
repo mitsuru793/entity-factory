@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Yahiru\EntityFactory\Tests;
 
+use Faker\Generator;
 use PHPUnit\Framework\TestCase;
 
 final class FactoryTest extends TestCase
@@ -65,5 +66,24 @@ final class FactoryTest extends TestCase
 
         $entities = $factory->times(2)->make();
         $this->assertInstanceOf(FakeCollection::class, $entities);
+    }
+
+    public function testCanAccessCurrentAttributes()
+    {
+        $factory = new class extends FakeEntityFactory {
+            public function seeCurrentAttributes()
+            {
+                $this->addRecipe(function (Generator $faker) {
+                    return [
+                        'name' => 'can see ' . $this->currentAttributes()['name'],
+                    ];
+                });
+
+                return $this;
+            }
+        };
+        $entity = $factory->seeCurrentAttributes()->make();
+
+        $this->assertSame('can see testing name', $entity->getName());
     }
 }
