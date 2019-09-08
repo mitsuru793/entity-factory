@@ -11,14 +11,13 @@ use Yahiru\EntityFactory\Exception\InvalidRecipeException;
 abstract class AbstractFactory
 {
     protected $locale = 'en_US';
-    private $times = 1;
-    private $recipes = [];
-
     /**
      * these keys are ignored when make an entity.
      * @var array
      */
     protected $ignoredKeys = [];
+    private $times = 1;
+    private $recipes = [];
 
     /**
      * @param mixed ...$args
@@ -46,24 +45,21 @@ abstract class AbstractFactory
 
     final public function store(array $attributes = [])
     {
-        $entities = $this->make($attributes);
+        $entities = $this->makeEntities($attributes);
 
-        $iteratable = $this->shouldReturnMultiple()
-            ? $entities
-            : [$entities];
+        if (!$this->shouldReturnMultiple()) {
+            $this->persistEntity($entities[0]);
+            return $entities[0];
+        }
 
-        foreach ($iteratable as $entity) {
+        foreach ($entities as $entity) {
             $this->persistEntity($entity);
         }
 
-        return $entities;
+        return $this->newCollection($entities);
     }
 
-    /**
-     * @param array $attributes
-     * @return mixed
-     */
-    final public function make(array $attributes = [])
+    private function makeEntities(array $attributes): array
     {
         $faker = $this->getFaker();
         $entities = [];
@@ -74,9 +70,7 @@ abstract class AbstractFactory
             );
         }
 
-        return $this->shouldReturnMultiple()
-            ? $entities
-            : $entities[0];
+        return $entities;
     }
 
     protected function getFaker(): Faker
@@ -107,12 +101,12 @@ abstract class AbstractFactory
         return $instance;
     }
 
+    abstract protected function class(): string;
+
     private function hasIgnoredKey(string $key): bool
     {
         return in_array($key, $this->ignoredKeys, true);
     }
-
-    abstract protected function class(): string;
 
     private function buildAttributes(Faker $faker, array $attributes): array
     {
@@ -153,6 +147,23 @@ abstract class AbstractFactory
     protected function persistEntity($entity): void
     {
         // should implements if you want to persist an entity.
+    }
+
+    protected function newCollection(array $entities)
+    {
+        return $entities;
+    }
+
+    /**
+     * @param array $attributes
+     * @return mixed
+     */
+    final public function make(array $attributes = [])
+    {
+        $entities = $this->makeEntities($attributes);
+        return $this->shouldReturnMultiple()
+            ? $this->newCollection($entities)
+            : $entities[0];
     }
 
     final public function attributes(array $attributes = []): array

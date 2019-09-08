@@ -7,7 +7,7 @@ use Faker\Generator as Faker;
 use Yahiru\EntityFactory\AbstractFactory;
 
 /**
- * @method FakeEntity make(array $attributes = [])
+ * @method FakeEntity|FakeEntity[] make(array $attributes = [])
  */
 class FakeEntityFactory extends AbstractFactory
 {

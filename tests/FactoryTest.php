@@ -53,4 +53,17 @@ final class FactoryTest extends TestCase
         ]);
         $this->assertNull($entity->getIgnored());
     }
+
+    public function testReturnOriginalCollection()
+    {
+        $factory = new class extends FakeEntityFactory {
+            protected function newCollection(array $entities)
+            {
+                return new FakeCollection($entities);
+            }
+        };
+
+        $entities = $factory->times(2)->make();
+        $this->assertInstanceOf(FakeCollection::class, $entities);
+    }
 }
