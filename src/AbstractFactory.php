@@ -111,11 +111,13 @@ abstract class AbstractFactory
 
     private function buildAttributes(Faker $faker, array $attributes): array
     {
+        $this->updateCurrentAttributes([]);
         $this->updateCurrentAttributes(
             $built = $this->default($faker)
         );
 
-        foreach ($this->recipes as $recipe) {
+        $recipes = $this->recipes;
+        foreach ($recipes as $recipe) {
             $this->updateCurrentAttributes(
                 $built = array_merge($built, $this->toAttributes($faker, $recipe))
             );
