@@ -182,7 +182,15 @@ abstract class AbstractFactory
 
     final public function attributes(array $attributes = []): array
     {
-        return $this->buildAttributes($this->getFaker(), $attributes);
+        $times = $this->times;
+        $built = [];
+        while ($times--) {
+            $built[] = $this->buildAttributes($this->getFaker(), $attributes);
+        }
+
+        return $this->shouldReturnMultiple()
+            ? $built
+            : $built[0];
     }
 
     final protected function currentAttributes(): array
