@@ -99,11 +99,11 @@ class FooEntityFactory extends AbstractFactory
         return $this;
     }
 }
-$foo = FooEntityFactory::fakerRecipe()->fooRecipe()->make();
+$foo = FooEntityFactory::start()fakerRecipe()->make();
 echo $foo->getName();
 ```
 
-## Return Custom Collection Class
+## Return custom collection class
 
 ```php
 <?php
@@ -119,11 +119,11 @@ class FooEntityFactory extends AbstractFactory
     }
 }
 
-$fooCollection = FooEntityFactory::fakerRecipe()->times(5)->make();
+$fooCollection = FooEntityFactory::start()->times(5)->make();
 echo get_class($fooCollection); // FooCollection
 ```
 
-## To Store An Entity In Database
+## To store an entity in database
 
 ```php
 <?php
@@ -144,6 +144,5 @@ class FooEntityFactory extends AbstractFactory
 }
 
 // execute store method when you want to store an entity in database
-$fooCollection = FooEntityFactory::fakerRecipe()->store();
-echo get_class($fooCollection); // FooCollection
+$foo = FooEntityFactory::start()->store();
 ```
