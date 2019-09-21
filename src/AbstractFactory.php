@@ -7,6 +7,7 @@ use Faker\Generator as Faker;
 use OutOfBoundsException;
 use ReflectionClass;
 use Yahiru\EntityFactory\Exception\InvalidRecipeException;
+use Yahiru\EntityFactory\Exception\LogicException;
 
 abstract class AbstractFactory
 {
@@ -166,7 +167,7 @@ abstract class AbstractFactory
 
     protected function persistEntity($entity): void
     {
-        // should implements if you want to persist an entity.
+        throw new LogicException('should override this method if you want to persist an entity.');
     }
 
     protected function newCollection(array $entities)
