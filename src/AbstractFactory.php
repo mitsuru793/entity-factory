@@ -29,6 +29,10 @@ abstract class AbstractFactory
         return new static(...$args);
     }
 
+    /**
+     * @param int $times
+     * @return static
+     */
     final public function times(int $times): self
     {
         $this->setTimes($times);
