@@ -7,8 +7,6 @@ final class FakeEntity
 {
     /** @var string */
     private $name;
-    /** @var null|mixed */
-    private $ignored = null;
 
     /**
      * FakeEntity constructor.
@@ -25,10 +23,5 @@ final class FakeEntity
     public function getName(): string
     {
         return $this->name;
-    }
-
-    public function getIgnored()
-    {
-        return $this->ignored;
     }
 }

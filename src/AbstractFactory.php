@@ -6,20 +6,17 @@ namespace Yahiru\EntityFactory;
 use Faker\Generator as Faker;
 use OutOfBoundsException;
 use ReflectionClass;
+use Yahiru\EntityFactory\Exception\InvalidAttributeException;
 use Yahiru\EntityFactory\Exception\InvalidRecipeException;
 use Yahiru\EntityFactory\Exception\LogicException;
 
 abstract class AbstractFactory
 {
     protected $locale = 'en_US';
-    /**
-     * these keys are ignored when make an entity.
-     * @var array
-     */
-    protected $ignoredKeys = [];
     private $times = 1;
     private $recipes = [];
     private $currentAttributes = [];
+    private $cachedFillable = [];
 
     /**
      * @param mixed ...$args
@@ -95,9 +92,6 @@ abstract class AbstractFactory
         $instance = $ref->newInstanceWithoutConstructor();
 
         foreach ($attributes as $key => $attribute) {
-            if ($this->hasIgnoredKey($key)) {
-                continue;
-            }
             $property = $ref->getProperty($key);
 
             $property->setAccessible(true);
@@ -108,11 +102,6 @@ abstract class AbstractFactory
     }
 
     abstract protected function class(): string;
-
-    private function hasIgnoredKey(string $key): bool
-    {
-        return in_array($key, $this->ignoredKeys, true);
-    }
 
     private function buildAttributes(Faker $faker, array $attributes): array
     {
@@ -136,7 +125,42 @@ abstract class AbstractFactory
 
     private function updateCurrentAttributes(array $attributes): void
     {
+        $this->shouldCheckFillable() && $this->checkAttributes($attributes);
+
         $this->currentAttributes = $attributes;
+    }
+
+    private function checkAttributes(array $attributes): bool
+    {
+        foreach ($attributes as $key => $attribute) {
+            if ($this->isFillable($key)) {
+                continue;
+            }
+            throw new InvalidAttributeException($key.' is not fillable.');
+        }
+
+        return true;
+    }
+
+    private function isFillable(string $key): bool
+    {
+        if (isset($this->cachedFillable[$key])) {
+            return $this->cachedFillable[$key];
+        }
+
+        $isFillable = in_array($key, $this->fillable(), true);
+        $this->cachedFillable[$key] = $isFillable;
+        return $isFillable;
+    }
+
+    private function shouldCheckFillable(): bool
+    {
+        return $this->fillable()[0] !== '*';
+    }
+
+    protected function fillable(): array
+    {
+        return ['*'];
     }
 
     abstract protected function default(Faker $faker): array;

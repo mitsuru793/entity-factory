@@ -11,10 +11,6 @@ use Yahiru\EntityFactory\AbstractFactory;
  */
 class FakeEntityFactory extends AbstractFactory
 {
-    protected $ignoredKeys = [
-        'ignore'
-    ];
-
     protected function class(): string
     {
         return FakeEntity::class;

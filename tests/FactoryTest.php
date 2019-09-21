@@ -5,6 +5,7 @@ namespace Yahiru\EntityFactory\Tests;
 
 use Faker\Generator;
 use PHPUnit\Framework\TestCase;
+use Yahiru\EntityFactory\Exception\InvalidAttributeException;
 
 final class FactoryTest extends TestCase
 {
@@ -47,12 +48,31 @@ final class FactoryTest extends TestCase
         $this->assertSame(2, count($entities));
     }
 
-    public function testCanIgnoreKey()
+    public function testCanFill()
     {
-        $entity = FakeEntityFactory::start()->make([
-            'ignore' => 'testing'
+        $factory = new class extends FakeEntityFactory {
+            protected function fillable(): array
+            {
+                return ['name'];
+            }
+        };
+        $entity = $factory->make([
+            'name' => 'testing name'
         ]);
-        $this->assertNull($entity->getIgnored());
+        $this->assertSame('testing name', $entity->getName());
+    }
+
+    public function testCanNotFill()
+    {
+        $factory = new class extends FakeEntityFactory {
+            protected function fillable(): array
+            {
+                return ['name'];
+            }
+        };
+
+        $this->expectException(InvalidAttributeException::class);
+        $factory->make(['not_fillable' => 'testing']);
     }
 
     public function testReturnOriginalCollection()
