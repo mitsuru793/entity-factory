@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace Yahiru\EntityFactory;
 
 use Faker\Generator as Faker;
-use OutOfBoundsException;
 use ReflectionClass;
 use Yahiru\EntityFactory\Exception\InvalidAttributeException;
 use Yahiru\EntityFactory\Exception\InvalidRecipeException;
 use Yahiru\EntityFactory\Exception\LogicException;
+use Yahiru\EntityFactory\Exception\OutOfRangeException;
 
 abstract class AbstractFactory
 {
@@ -40,7 +40,7 @@ abstract class AbstractFactory
     final protected function setTimes(int $times): void
     {
         if ($times < 1) {
-            throw new OutOfBoundsException('times must be positive number. but given ' . $times);
+            throw new OutOfRangeException('times must be positive number. but given ' . $times);
         }
 
         $this->times = $times;
