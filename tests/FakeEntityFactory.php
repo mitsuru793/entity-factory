@@ -16,7 +16,7 @@ class FakeEntityFactory extends AbstractFactory
         return FakeEntity::class;
     }
 
-    public function default(Faker $faker): array
+    protected function default(Faker $faker): array
     {
         return [
             'name' => 'testing name'

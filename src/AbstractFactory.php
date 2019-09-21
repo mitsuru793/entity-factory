@@ -39,7 +39,7 @@ abstract class AbstractFactory
 
     final protected function setTimes(int $times): void
     {
-        if ($times < 1) {
+        if ($times <= 0) {
             throw new OutOfRangeException('times must be positive number. but given ' . $times);
         }
 
@@ -113,24 +113,37 @@ abstract class AbstractFactory
         $recipes = $this->recipes;
         foreach ($recipes as $recipe) {
             $this->updateCurrentAttributes(
-                $built = array_merge($built, $this->toAttributes($faker, $recipe))
+                $built = $this->buildAttribute($faker, $built, $recipe)
             );
         }
 
         $this->updateCurrentAttributes(
-            $built = array_merge($built, $attributes)
+            $built = $this->buildAttribute($faker, $built, $attributes)
         );
         return $built;
     }
 
+    /**
+     * @param Faker $faker
+     * @param array $original
+     * @param array|callable $recipe
+     * @return array
+     */
+    private function buildAttribute(Faker $faker, array $original, $recipe): array
+    {
+        return array_merge($original, $this->toAttributes($faker, $recipe));
+    }
+
     private function updateCurrentAttributes(array $attributes): void
     {
-        $this->shouldCheckFillable() && $this->checkAttributes($attributes);
+        if ($this->shouldCheckFillable()) {
+            $this->checkAttributes($attributes);
+        }
 
         $this->currentAttributes = $attributes;
     }
 
-    private function checkAttributes(array $attributes): bool
+    private function checkAttributes(array $attributes): void
     {
         foreach ($attributes as $key => $attribute) {
             if ($this->isFillable($key)) {
@@ -138,8 +151,6 @@ abstract class AbstractFactory
             }
             throw new InvalidAttributeException($key.' is not fillable.');
         }
-
-        return true;
     }
 
     private function isFillable(string $key): bool
@@ -238,7 +249,6 @@ abstract class AbstractFactory
             throw new InvalidRecipeException('recipe must be array or callable.');
         }
 
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        $this->recipes[$backtrace[1]['function']] = $attribute;
+        $this->recipes[] = $attribute;
     }
 }

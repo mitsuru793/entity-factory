@@ -6,6 +6,7 @@ namespace Yahiru\EntityFactory\Tests;
 use Faker\Generator;
 use PHPUnit\Framework\TestCase;
 use Yahiru\EntityFactory\Exception\InvalidAttributeException;
+use Yahiru\EntityFactory\Exception\OutOfRangeException;
 
 final class FactoryTest extends TestCase
 {
@@ -40,12 +41,32 @@ final class FactoryTest extends TestCase
         $this->assertInstanceOf(FakeEntity::class, $entity);
     }
 
-    public function testCanMultipleBuild()
+    public function testCanMultipleMake()
     {
         $entities = FakeEntityFactory::start()->times(2)->make();
 
         $this->assertTrue(is_array($entities));
         $this->assertSame(2, count($entities));
+    }
+
+    public function testCanMultipleStore()
+    {
+        $factory = new class extends FakeEntityFactory {
+            protected function persistEntity($entity): void
+            {
+                //
+            }
+        };
+        $entities = $factory->times(2)->make();
+
+        $this->assertTrue(is_array($entities));
+        $this->assertSame(2, count($entities));
+    }
+
+    public function testCanNotSetNegativeNumber()
+    {
+        $this->expectException(OutOfRangeException::class);
+        FakeEntityFactory::start()->times(0);
     }
 
     public function testCanFill()
@@ -91,19 +112,35 @@ final class FactoryTest extends TestCase
     public function testCanAccessCurrentAttributes()
     {
         $factory = new class extends FakeEntityFactory {
-            public function seeCurrentAttributes()
+            public $current;
+            public function testingRecipe()
             {
                 $this->addRecipe(function (Generator $faker) {
-                    return [
-                        'name' => 'can see ' . $this->currentAttributes()['name'],
-                    ];
+                    $this->current = $this->currentAttributes();
+                    return [];
                 });
 
                 return $this;
             }
         };
-        $entity = $factory->seeCurrentAttributes()->make();
+        $factory->testingRecipe()->make();
 
-        $this->assertSame('can see testing name', $entity->getName());
+        $this->assertSame(['name' => 'testing name'], $factory->current);
+    }
+
+    public function testResetCurrentAttributes()
+    {
+        $factory = new class extends FakeEntityFactory {
+            public $currents = [];
+            protected function default(Generator $faker): array
+            {
+                $this->currents[] = $this->currentAttributes();
+                return parent::default($faker);
+            }
+        };
+        $factory->times(2)->make();
+
+        $this->assertSame([], $factory->currents[0]);
+        $this->assertSame([], $factory->currents[1]);
     }
 }
