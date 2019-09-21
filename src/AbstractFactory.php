@@ -139,7 +139,7 @@ abstract class AbstractFactory
         $this->currentAttributes = $attributes;
     }
 
-    abstract public function default(Faker $faker): array;
+    abstract protected function default(Faker $faker): array;
 
     /**
      * @param Faker $faker
