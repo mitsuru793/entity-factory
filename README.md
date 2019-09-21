@@ -99,7 +99,7 @@ class FooEntityFactory extends AbstractFactory
         return $this;
     }
 }
-$foo = FooEntityFactory::start()fakerRecipe()->make();
+$foo = FooEntityFactory::start()->fakerRecipe()->make();
 echo $foo->getName();
 ```
 
@@ -143,6 +143,29 @@ class FooEntityFactory extends AbstractFactory
     }
 }
 
-// execute store method when you want to store an entity in database
+// call store method when you want to store an entity in database
 $foo = FooEntityFactory::start()->store();
+```
+
+## Check attribute keys
+
+```php
+<?php
+
+class FooEntityFactory extends AbstractFactory
+{
+    // ...
+
+    // override this method
+    protected function fillable(): array
+    {
+        return ['name', 'email']; 
+    }
+}
+
+try {
+    FooEntityFactory::start()->make(['foo' => 'bar']);
+} catch (EntityFactoryExceptionInterface $e) {
+    echo $e->getMessage(); // "foo is not fillable."
+} 
 ```
