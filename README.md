@@ -17,6 +17,7 @@ use Yahiru\EntityFactory\AbstractFactory;
 
 /**
  * @method FooEntity|FooEntity[] make(array $attributes = [])
+ * @method FooEntity|FooEntity[] store(array $attributes = [])
  */
 class FooEntityFactory extends AbstractFactory
 {
@@ -26,7 +27,7 @@ class FooEntityFactory extends AbstractFactory
         return FooEntity::class;
     }
 
-    public function default(Faker $faker): array
+    protected function default(Faker $faker): array
     {
         // define default values
         return [
