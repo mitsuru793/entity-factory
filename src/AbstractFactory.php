@@ -6,7 +6,6 @@ namespace Yahiru\EntityFactory;
 use Faker\Generator as Faker;
 use ReflectionClass;
 use Yahiru\EntityFactory\Exception\InvalidAttributeException;
-use Yahiru\EntityFactory\Exception\InvalidRecipeException;
 use Yahiru\EntityFactory\Exception\LogicException;
 use Yahiru\EntityFactory\Exception\OutOfRangeException;
 
@@ -14,6 +13,7 @@ abstract class AbstractFactory
 {
     protected $locale = 'en_US';
     private $times = 1;
+    /** @var Recipe[] */
     private $recipes = [];
     private $currentAttributes = [];
     private $cachedFillable = [];
@@ -105,33 +105,20 @@ abstract class AbstractFactory
 
     private function buildAttributes(Faker $faker, array $attributes): array
     {
-        $this->updateCurrentAttributes([]);
-        $this->updateCurrentAttributes(
-            $built = $this->default($faker)
-        );
+        $this->updateCurrentAttributes($built = []);
 
-        $recipes = $this->recipes;
+        $recipes[] = new Recipe($this->default($faker));
+        $recipes = array_merge($recipes, $this->recipes);
+        $recipes[] = new Recipe($attributes);
+
+        /** @var Recipe[] $recipes */
         foreach ($recipes as $recipe) {
             $this->updateCurrentAttributes(
-                $built = $this->buildAttribute($faker, $built, $recipe)
+                $built = array_merge($built, $recipe->toAttribute($faker))
             );
         }
 
-        $this->updateCurrentAttributes(
-            $built = $this->buildAttribute($faker, $built, $attributes)
-        );
         return $built;
-    }
-
-    /**
-     * @param Faker $faker
-     * @param array $original
-     * @param array|callable $recipe
-     * @return array
-     */
-    private function buildAttribute(Faker $faker, array $original, $recipe): array
-    {
-        return array_merge($original, $this->toAttributes($faker, $recipe));
     }
 
     private function updateCurrentAttributes(array $attributes): void
@@ -175,25 +162,6 @@ abstract class AbstractFactory
     }
 
     abstract protected function default(Faker $faker): array;
-
-    /**
-     * @param Faker $faker
-     * @param array|callable $recipe
-     * @return array
-     * @throws InvalidRecipeException
-     */
-    private function toAttributes(Faker $faker, $recipe): array
-    {
-        if (is_array($recipe)) {
-            return $recipe;
-        }
-
-        if (is_callable($recipe)) {
-            return $recipe($faker);
-        }
-
-        throw new InvalidRecipeException('recipe must be array or callable.');
-    }
 
     final protected function shouldReturnMultiple(): bool
     {
@@ -245,10 +213,6 @@ abstract class AbstractFactory
      */
     final protected function addRecipe($attribute): void
     {
-        if (!is_array($attribute) && !is_callable($attribute)) {
-            throw new InvalidRecipeException('recipe must be array or callable.');
-        }
-
-        $this->recipes[] = $attribute;
+        $this->recipes[] = new Recipe($attribute);
     }
 }
