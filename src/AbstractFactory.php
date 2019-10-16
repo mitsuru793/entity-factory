@@ -114,7 +114,7 @@ abstract class AbstractFactory
         /** @var Recipe[] $recipes */
         foreach ($recipes as $recipe) {
             $this->updateCurrentAttributes(
-                $built = array_merge($built, $recipe->toAttribute($faker))
+                $built = array_merge($built, $recipe->toAttribute($faker, $this->currentAttributes))
             );
         }
 

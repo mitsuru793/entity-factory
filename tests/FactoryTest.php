@@ -115,11 +115,10 @@ final class FactoryTest extends TestCase
             public $current;
             public function testingRecipe()
             {
-                $this->addRecipe(function (Generator $faker) {
-                    $this->current = $this->currentAttributes();
+                $this->addRecipe(function (Generator $faker, array $currentAttributes) {
+                    $this->current = $currentAttributes;
                     return [];
                 });
-
                 return $this;
             }
         };
