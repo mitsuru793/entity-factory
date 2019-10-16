@@ -126,20 +126,4 @@ final class FactoryTest extends TestCase
 
         $this->assertSame(['name' => 'testing name'], $factory->current);
     }
-
-    public function testResetCurrentAttributes()
-    {
-        $factory = new class extends FakeEntityFactory {
-            public $currents = [];
-            protected function default(Generator $faker): array
-            {
-                $this->currents[] = $this->currentAttributes();
-                return parent::default($faker);
-            }
-        };
-        $factory->times(2)->make();
-
-        $this->assertSame([], $factory->currents[0]);
-        $this->assertSame([], $factory->currents[1]);
-    }
 }
